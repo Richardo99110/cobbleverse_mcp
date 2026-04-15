@@ -1,11 +1,12 @@
 ﻿"""
 COBBLEVERSE MCP Server
-Exposes the INSTALLATION knowledge base via MCP tools.
+Exposes the wiki knowledge base via MCP tools.
 Run with: python mcp_server/server.py
 """
 
 from mcp.server.fastmcp import FastMCP
 from knowledge_base import INSTALLATION, GAMEPLAY
+from pokemon_spawns import POKEMON_SPAWNS, search_pokemon, format_pokemon
 
 mcp = FastMCP("cobbleverse-wiki")
 
@@ -127,6 +128,26 @@ def get_gameplay_entry(topic_key: str) -> str:
         available = ", ".join(GAMEPLAY.keys())
         return f"Topic '{topic_key}' not found. Available keys: {available}"
     return f"## {entry['title']}\n\n{entry['content']}\n\nSource: {entry['url']}"
+
+
+# ── POKEMON SPAWN TOOLS ──────────────────────────────────────────────────────
+
+@mcp.tool()
+def search_pokemon_spawn(query: str) -> str:
+    """
+    Search the Pokemon spawn database for where and how to find a specific
+    Pokemon in COBBLEVERSE. Supports searching by name, Pokedex number,
+    biome, rarity, or condition.
+
+    Args:
+        query: Pokemon name, number, biome, or keyword, e.g. 'Pikachu' or 'Jungle'
+    """
+    results = search_pokemon(query)
+    if not results:
+        return f"No Pokemon found matching '{query}'. Try a name like 'Pikachu' or a biome like 'Jungle'."
+    parts = [format_pokemon(p) for p in results[:10]]
+    header = f"Found {len(results)} result(s) for '{query}':\n\n"
+    return header + "\n\n".join(parts)
 
 
 if __name__ == "__main__":

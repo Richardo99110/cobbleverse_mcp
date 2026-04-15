@@ -36,6 +36,7 @@ from pydantic import BaseModel
 import uvicorn
 
 from knowledge_base import INSTALLATION, GAMEPLAY
+from pokemon_spawns import POKEMON_SPAWNS, search_pokemon, format_pokemon, SOURCE_URL
 
 # ── config ────────────────────────────────────────────────────────────────────
 
@@ -74,6 +75,82 @@ def _build_entry_index() -> str:
 
 
 ENTRY_INDEX = _build_entry_index()
+
+
+def _is_pokemon_query(query: str) -> bool:
+    """Detect if the user is asking about a specific Pokemon's spawn location."""
+    q = query.lower()
+    # Check if any Pokemon name appears in the query
+    for key, p in POKEMON_SPAWNS.items():
+        if key in q or p["name"].lower() in q:
+            return True
+    # Check for pokemon-finding intent words
+    pokemon_signals = ["where to find", "where can i find", "how to catch", "how do i catch",
+                       "where does", "spawn location", "where is", "how to get",
+                       "pokemon spawn", "pokémon spawn", "pokedex", "pokédex"]
+    return any(s in q for s in pokemon_signals)
+
+
+def _answer_pokemon_query(user_query: str) -> str | None:
+    """If the query is about a specific Pokemon, search the spawn DB and answer with LLM."""
+    results = search_pokemon(user_query)
+    if not results:
+        return None
+
+    # Build context from top matches
+    context_parts = []
+    for p in results[:5]:
+        context_parts.append(format_pokemon(p))
+    context = "\n\n".join(context_parts)
+
+    prompt = f"""You are a helpful assistant for the COBBLEVERSE Minecraft modpack wiki.
+Answer the user's question about Pokemon spawns using ONLY the data below.
+Be friendly and concise. Use markdown formatting.
+Source: {SOURCE_URL}
+
+Pokemon spawn data:
+{context}
+
+User question: {user_query}
+
+Answer:"""
+
+    response = ollama.chat(
+        model=LLM_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        options={"temperature": 0.3},
+    )
+    return response["message"]["content"].strip()
+
+
+def _answer_pokemon_query_stream(user_query: str):
+    """Streaming version for pokemon queries. Returns None if no results."""
+    results = search_pokemon(user_query)
+    if not results:
+        return None
+
+    context_parts = [format_pokemon(p) for p in results[:5]]
+    context = "\n\n".join(context_parts)
+
+    prompt = f"""You are a helpful assistant for the COBBLEVERSE Minecraft modpack wiki.
+Answer the user's question about Pokemon spawns using ONLY the data below.
+Be friendly and concise. Use markdown formatting.
+Source: {SOURCE_URL}
+
+Pokemon spawn data:
+{context}
+
+User question: {user_query}
+
+Answer:"""
+
+    # Return the stream iterator directly (not a generator function)
+    return ollama.chat(
+        model=LLM_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        options={"temperature": 0.3},
+        stream=True,
+    )
 
 
 def _select_entries_with_llm(user_query: str) -> list[dict]:
@@ -209,9 +286,19 @@ class QueryRequest(BaseModel):
 def chat(req: QueryRequest):
     """
     Main chatbot endpoint.
-    1. LLM selects relevant KB entries from the user's natural language query.
-    2. LLM writes a grounded answer using those entries as context.
+    1. Check if this is a Pokemon-specific query first.
+    2. Otherwise, LLM selects relevant KB entries and writes a grounded answer.
     """
+    # Fast path: Pokemon spawn queries
+    if _is_pokemon_query(req.query):
+        answer = _answer_pokemon_query(req.query)
+        if answer:
+            return {
+                "answer": answer,
+                "section": "pokemon_spawns",
+                "matched_entries": ["Pokemon Spawn Database"],
+            }
+
     # Step 1: LLM-based routing
     entries = _select_entries_with_llm(req.query)
 
@@ -223,7 +310,8 @@ def chat(req: QueryRequest):
         return {
             "answer": (
                 "I couldn't find anything relevant in the wiki for that question. "
-                "Try asking about installing COBBLEVERSE, setting up a server, or LumyMon."
+                "Try asking about installing COBBLEVERSE, setting up a server, "
+                "gameplay features, or where to find a specific Pokemon."
             ),
             "section": "unknown",
             "matched_entries": [],
@@ -246,6 +334,18 @@ def chat_stream(req: QueryRequest):
     Streaming version of /chat — sends the LLM answer token by token
     as a Server-Sent Events stream.
     """
+    # Fast path: Pokemon spawn queries (streamed)
+    if _is_pokemon_query(req.query):
+        stream = _answer_pokemon_query_stream(req.query)
+        if stream is not None:
+            def _pokemon_stream():
+                for chunk in stream:
+                    delta = chunk["message"]["content"]
+                    if delta:
+                        yield f"data: {json.dumps(delta)}\n\n"
+                yield "data: [DONE]\n\n"
+            return StreamingResponse(_pokemon_stream(), media_type="text/event-stream")
+
     # Step 1: LLM routing (non-streaming, fast)
     entries = _select_entries_with_llm(req.query)
     if not entries:
@@ -293,6 +393,16 @@ def search_installation(req: QueryRequest):
 @app.get("/tools/get_installation_topics")
 def get_installation_topics():
     return {"topics": [{"key": k, "title": v["title"]} for k, v in INSTALLATION.items()]}
+
+
+@app.post("/tools/search_pokemon")
+def api_search_pokemon(req: QueryRequest):
+    """Search the Pokemon spawn database directly."""
+    results = search_pokemon(req.query)
+    if not results:
+        return {"results": [], "count": 0, "query": req.query}
+    formatted = [format_pokemon(p) for p in results[:10]]
+    return {"results": formatted, "count": len(results), "query": req.query}
 
 
 # ── serve web client ──────────────────────────────────────────────────────────
