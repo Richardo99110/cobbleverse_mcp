@@ -87,8 +87,29 @@ def _is_pokemon_query(query: str) -> bool:
     # Check for pokemon-finding intent words
     pokemon_signals = ["where to find", "where can i find", "how to catch", "how do i catch",
                        "where does", "spawn location", "where is", "how to get",
-                       "pokemon spawn", "pokémon spawn", "pokedex", "pokédex"]
+                       "pokemon spawn", "pokémon spawn", "pokedex", "pokédex",
+                       "alolan", "galarian", "hisuian", "paldean"]
     return any(s in q for s in pokemon_signals)
+
+
+POKEMON_PROMPT_TEMPLATE = """You are a helpful assistant for the COBBLEVERSE Minecraft modpack wiki.
+Answer the user's question about Pokemon spawns using ONLY the data below.
+Be friendly and concise. Use markdown formatting.
+
+IMPORTANT RULES:
+- "Base spawn biomes" is where the NORMAL/DEFAULT form of the Pokemon spawns.
+- "ALTERNATIVE FORMS & THEIR SPAWN LOCATIONS" lists regional variants (Alolan, Galarian, Hisuian, Paldean, etc.) and their DIFFERENT spawn biomes.
+- If the user asks about a specific form (e.g. "Alolan Pikachu"), answer with the spawn location listed for THAT FORM, NOT the base spawn location.
+- Always clearly distinguish between the base form and alternative forms in your answer.
+
+Source: {source_url}
+
+Pokemon spawn data:
+{context}
+
+User question: {user_query}
+
+Answer:"""
 
 
 def _answer_pokemon_query(user_query: str) -> str | None:
@@ -97,23 +118,14 @@ def _answer_pokemon_query(user_query: str) -> str | None:
     if not results:
         return None
 
-    # Build context from top matches
     context_parts = []
     for p in results[:5]:
         context_parts.append(format_pokemon(p))
     context = "\n\n".join(context_parts)
 
-    prompt = f"""You are a helpful assistant for the COBBLEVERSE Minecraft modpack wiki.
-Answer the user's question about Pokemon spawns using ONLY the data below.
-Be friendly and concise. Use markdown formatting.
-Source: {SOURCE_URL}
-
-Pokemon spawn data:
-{context}
-
-User question: {user_query}
-
-Answer:"""
+    prompt = POKEMON_PROMPT_TEMPLATE.format(
+        source_url=SOURCE_URL, context=context, user_query=user_query
+    )
 
     response = ollama.chat(
         model=LLM_MODEL,
@@ -132,17 +144,9 @@ def _answer_pokemon_query_stream(user_query: str):
     context_parts = [format_pokemon(p) for p in results[:5]]
     context = "\n\n".join(context_parts)
 
-    prompt = f"""You are a helpful assistant for the COBBLEVERSE Minecraft modpack wiki.
-Answer the user's question about Pokemon spawns using ONLY the data below.
-Be friendly and concise. Use markdown formatting.
-Source: {SOURCE_URL}
-
-Pokemon spawn data:
-{context}
-
-User question: {user_query}
-
-Answer:"""
+    prompt = POKEMON_PROMPT_TEMPLATE.format(
+        source_url=SOURCE_URL, context=context, user_query=user_query
+    )
 
     # Return the stream iterator directly (not a generator function)
     return ollama.chat(

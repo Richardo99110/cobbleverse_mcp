@@ -38,7 +38,7 @@ POKEMON_SPAWNS = {
 "fearow": {"name": "Fearow", "number": 22, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Badlands, Savanna", "rarity": "Common", "condition": "Day", "forms": ""},
 "ekans": {"name": "Ekans", "number": 23, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Desert, Savanna, Deep Dark", "rarity": "Common", "condition": "Day", "forms": ""},
 "arbok": {"name": "Arbok", "number": 24, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Desert biomes, Savanna, Deep Dark", "rarity": "Common", "condition": "", "forms": ""},
-"pikachu": {"name": "Pikachu", "number": 25, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "All Forest biomes except Dark Forest", "rarity": "Uncommon", "condition": "During a storm", "forms": "Alolan form: Beach. Cosplay Belle: Sunflower Plains; Libre: Savanna; Phd: Jungle; Pop Star: Cherry Grove; Rock Star: Badlands"},
+"pikachu": {"name": "Pikachu", "number": 25, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "All Forest biomes except Dark Forest", "rarity": "Uncommon", "condition": "During a storm", "forms": "Alolan form: Beach; Cosplay Belle: Sunflower Plains; Libre: Savanna; Phd: Jungle; Pop Star: Cherry Grove; Rock Star: Badlands"},
 "raichu": {"name": "Raichu", "number": 26, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Forest biomes", "rarity": "Uncommon", "condition": "During a storm", "forms": "Alolan form: Jungle, Desert, Savanna"},
 "sandshrew": {"name": "Sandshrew", "number": 27, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Badlands, Desert", "rarity": "Common", "condition": "", "forms": "Alolan form: Jagged Peaks, Snowy Plains, Snowy Slopes"},
 "sandslash": {"name": "Sandslash", "number": 28, "generation": "Gen 1 Kanto", "source": "Cobblemon", "spawn_biomes": "Badlands, Desert", "rarity": "Common", "condition": "", "forms": "Alolan form: Jagged Peaks, Snowy Plains, Snowy Slopes"},
@@ -174,33 +174,57 @@ def search_pokemon(query: str) -> list[dict]:
     q = query.lower().strip()
     # Handle '#123' style queries
     q_num = q.lstrip("#")
+
+    # Split query into individual words for multi-word matching
+    words = q.split()
+
     results = []
     for key, p in POKEMON_SPAWNS.items():
         score = 0
+        name_lower = p["name"].lower()
+
         # Exact name match
-        if q == key or q == p["name"].lower():
+        if q == key or q == name_lower:
             score += 10
         # Partial name match
-        elif q in key or q in p["name"].lower():
+        elif q in key or q in name_lower:
             score += 5
+        # Check if pokemon name appears anywhere in the query
+        elif key in q or name_lower in q:
+            score += 5
+
         # Number match
         if q_num.isdigit() and int(q_num) == p["number"]:
             score += 10
+
         # Generation match
         if q in p["generation"].lower():
             score += 2
+
         # Biome/spawn match
         if q in p["spawn_biomes"].lower():
             score += 3
+
         # Rarity match
         if q in p["rarity"].lower():
             score += 2
+
         # Condition match
         if p["condition"] and q in p["condition"].lower():
             score += 2
-        # Forms match
-        if p["forms"] and q in p["forms"].lower():
-            score += 2
+
+        # Forms match — boost heavily when user asks about a specific form
+        if p["forms"]:
+            forms_lower = p["forms"].lower()
+            if q in forms_lower:
+                score += 4
+            # Check individual words like "alolan", "galarian", "hisuian"
+            form_keywords = ["alolan", "galarian", "hisuian", "paldean", "valencian",
+                             "cosplay", "mega", "shadow", "shiny"]
+            for word in words:
+                if word in form_keywords and word in forms_lower:
+                    score += 6  # Strong boost for form-specific queries
+
         if score > 0:
             results.append((score, p))
     results.sort(key=lambda x: x[0], reverse=True)
@@ -210,11 +234,11 @@ def search_pokemon(query: str) -> list[dict]:
 def format_pokemon(p: dict) -> str:
     """Format a single Pokemon entry as readable text."""
     lines = [f"#{p['number']} {p['name']} ({p['generation']})"]
-    lines.append(f"  Source mod: {p['source']}")
-    lines.append(f"  Spawn biomes: {p['spawn_biomes']}")
+    lines.append(f"  Base spawn biomes: {p['spawn_biomes']}")
     lines.append(f"  Rarity: {p['rarity']}")
     if p["condition"]:
         lines.append(f"  Condition: {p['condition']}")
     if p["forms"]:
-        lines.append(f"  Forms: {p['forms']}")
+        lines.append(f"  ALTERNATIVE FORMS & THEIR SPAWN LOCATIONS: {p['forms']}")
+        lines.append(f"  NOTE: Each form spawns in DIFFERENT biomes than the base form listed above.")
     return "\n".join(lines)
