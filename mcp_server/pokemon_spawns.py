@@ -169,6 +169,14 @@ POKEMON_SPAWNS = {
 
 # === Search & Format Utilities ===
 
+def _get_base_name(key: str) -> str:
+    """Strip gender/variant suffixes from a pokemon key to get the base name."""
+    for suffix in ("_f", "_m"):
+        if key.endswith(suffix):
+            return key[:-len(suffix)]
+    return key
+
+
 def search_pokemon(query: str) -> list[dict]:
     """Search for Pokemon by name, number, biome, rarity, generation, or condition."""
     q = query.lower().strip()
@@ -182,6 +190,8 @@ def search_pokemon(query: str) -> list[dict]:
     for key, p in POKEMON_SPAWNS.items():
         score = 0
         name_lower = p["name"].lower()
+        base_key = _get_base_name(key)
+        first_word = name_lower.split()[0]  # e.g. "nidoran" from "nidoran female"
 
         # Exact name match
         if q == key or q == name_lower:
@@ -191,6 +201,12 @@ def search_pokemon(query: str) -> list[dict]:
             score += 5
         # Check if pokemon name appears anywhere in the query
         elif key in q or name_lower in q:
+            score += 5
+        # Base name match (e.g. "nidoran" matches "nidoran_f" and "nidoran_m")
+        elif base_key != key and (q == base_key or base_key in q or q in base_key):
+            score += 5
+        # First word match (e.g. "nidoran" from "Nidoran Female")
+        elif len(first_word) >= 4 and (first_word in q or q == first_word):
             score += 5
 
         # Number match

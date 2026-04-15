@@ -77,12 +77,31 @@ def _build_entry_index() -> str:
 ENTRY_INDEX = _build_entry_index()
 
 
+def _get_base_name(key: str) -> str:
+    """Strip gender/variant suffixes from a pokemon key to get the base name.
+    e.g. 'nidoran_f' -> 'nidoran', 'mr_mime' -> 'mr mime'
+    """
+    # Common suffixes for gendered variants
+    for suffix in ("_f", "_m"):
+        if key.endswith(suffix):
+            return key[:-len(suffix)]
+    return key
+
+
 def _is_pokemon_query(query: str) -> bool:
     """Detect if the user is asking about a specific Pokemon's spawn location."""
     q = query.lower()
-    # Check if any Pokemon name appears in the query
+    # Check if any Pokemon name (or base name) appears in the query
     for key, p in POKEMON_SPAWNS.items():
         if key in q or p["name"].lower() in q:
+            return True
+        # Also check the base name (handles nidoran_f -> nidoran)
+        base = _get_base_name(key)
+        if base != key and base in q:
+            return True
+        # Check first word of multi-word names (e.g. "Nidoran" from "Nidoran Female")
+        first_word = p["name"].split()[0].lower()
+        if len(first_word) >= 4 and first_word in q:
             return True
     # Check for pokemon-finding intent words
     pokemon_signals = ["where to find", "where can i find", "how to catch", "how do i catch",
