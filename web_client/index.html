@@ -26,35 +26,38 @@
       align-items: center;
       gap: 12px;
       border-bottom: 2px solid #e94560;
+      flex-shrink: 0;
     }
 
-    header h1 {
-      font-size: 1.3rem;
-      color: #e94560;
-      letter-spacing: 1px;
-    }
+    header h1 { font-size: 1.3rem; color: #e94560; letter-spacing: 1px; }
+    header span { font-size: 0.85rem; color: #aaa; }
 
-    header span {
-      font-size: 0.85rem;
-      color: #aaa;
+    .llm-badge {
+      margin-left: auto;
+      font-size: 0.75rem;
+      background: #0f3460;
+      color: #7eb8f7;
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid #7eb8f744;
     }
 
     #chat-container {
       flex: 1;
       width: 100%;
-      max-width: 800px;
+      max-width: 820px;
       display: flex;
       flex-direction: column;
-      padding: 16px;
-      gap: 12px;
+      padding: 20px 16px;
+      gap: 14px;
       overflow-y: auto;
     }
 
     .message {
-      max-width: 85%;
-      padding: 12px 16px;
-      border-radius: 12px;
-      line-height: 1.6;
+      max-width: 88%;
+      padding: 13px 17px;
+      border-radius: 14px;
+      line-height: 1.65;
       font-size: 0.95rem;
     }
 
@@ -77,20 +80,49 @@
     .message.bot hr { border-color: #0f3460; margin: 10px 0; }
     .message.bot p { margin-bottom: 8px; }
     .message.bot ul, .message.bot ol { padding-left: 20px; margin-bottom: 8px; }
+    .message.bot a { color: #7eb8f7; }
+    .message.bot code {
+      background: #0f3460;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.88rem;
+    }
 
-    .message.typing {
-      color: #aaa;
-      font-style: italic;
+    .message.typing { color: #aaa; font-style: italic; }
+
+    /* streaming cursor */
+    .cursor::after {
+      content: "▋";
+      animation: blink 0.7s step-end infinite;
+      color: #e94560;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .meta {
+      font-size: 0.72rem;
+      color: #555;
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta .tag {
+      background: #0f3460;
+      color: #7eb8f7;
+      padding: 2px 8px;
+      border-radius: 10px;
     }
 
     #input-area {
       width: 100%;
-      max-width: 800px;
+      max-width: 820px;
       padding: 12px 16px;
       display: flex;
       gap: 10px;
       background: #16213e;
       border-top: 1px solid #0f3460;
+      flex-shrink: 0;
     }
 
     #user-input {
@@ -102,12 +134,14 @@
       color: #e0e0e0;
       font-size: 0.95rem;
       outline: none;
+      resize: none;
+      height: 46px;
     }
 
     #user-input:focus { border-color: #e94560; }
 
     #send-btn {
-      padding: 12px 20px;
+      padding: 12px 22px;
       background: #e94560;
       color: #fff;
       border: none;
@@ -116,42 +150,31 @@
       font-size: 0.95rem;
       font-weight: 600;
       transition: background 0.2s;
+      white-space: nowrap;
     }
 
     #send-btn:hover { background: #c73652; }
-    #send-btn:disabled { background: #555; cursor: not-allowed; }
-
-    .section-badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      background: #0f3460;
-      color: #aaa;
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    #send-btn:disabled { background: #444; cursor: not-allowed; }
 
     .suggestions {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
-    .suggestion-chip {
+    .chip {
       background: #0f3460;
       color: #e0e0e0;
-      border: 1px solid #e94560;
+      border: 1px solid #e9456044;
       border-radius: 16px;
-      padding: 4px 12px;
+      padding: 5px 13px;
       font-size: 0.8rem;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
 
-    .suggestion-chip:hover { background: #e94560; color: #fff; }
+    .chip:hover { background: #e94560; color: #fff; border-color: #e94560; }
   </style>
 </head>
 <body>
@@ -159,14 +182,16 @@
 <header>
   <div>
     <h1>⚡ COBBLEVERSE Wiki Bot</h1>
-    <span>Ask me anything about COBBLEVERSE — Installation, Gameplay, Gyms & more</span>
+    <span>Ask anything about COBBLEVERSE in plain English</span>
   </div>
+  <span class="llm-badge">🤖 llama3.2</span>
 </header>
 
 <div id="chat-container"></div>
 
 <div id="input-area">
-  <input id="user-input" type="text" placeholder="Ask a question, e.g. How do I install COBBLEVERSE from Modrinth?" />
+  <input id="user-input" type="text"
+    placeholder="e.g. I want to play with friends, how do I set up a server?" />
   <button id="send-btn">Send</button>
 </div>
 
@@ -177,92 +202,176 @@
   const sendBtn = document.getElementById("send-btn");
 
   const SUGGESTIONS = [
-    "How do I install COBBLEVERSE from Modrinth?",
-    "How do I install from CurseForge?",
-    "How do I set up an Apex Hosting server?",
-    "How do I set up a Nitrado server?",
-    "How do I update my Apex server?",
+    "I want to play with my friends, how do I do that?",
+    "How do I install COBBLEVERSE?",
     "What is LumyMon?",
+    "How do I get COBBLEVERSE on CurseForge?",
+    "How do I update my server?",
+    "How much RAM do I need?",
   ];
 
-  function addMessage(text, role, section) {
+  // ── DOM helpers ─────────────────────────────────────────────────────────────
+
+  function addUserMessage(text) {
     const div = document.createElement("div");
-    div.className = `message ${role}`;
-    if (role === "bot" && section) {
-      div.innerHTML = `<span class="section-badge">${section}</span><br>` + marked.parse(text);
-    } else if (role === "bot") {
-      div.innerHTML = marked.parse(text);
-    } else {
-      div.textContent = text;
+    div.className = "message user";
+    div.textContent = text;
+    chat.appendChild(div);
+    scrollBottom();
+  }
+
+  function addBotMessage(markdown, matchedEntries = []) {
+    const div = document.createElement("div");
+    div.className = "message bot";
+    div.innerHTML = marked.parse(markdown);
+    if (matchedEntries.length) {
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = "Sources: " + matchedEntries
+        .map(t => `<span class="tag">${t}</span>`).join("");
+      div.appendChild(meta);
     }
     chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
+    scrollBottom();
     return div;
+  }
+
+  function addStreamingBotMessage() {
+    const div = document.createElement("div");
+    div.className = "message bot cursor";
+    div.dataset.raw = "";
+    chat.appendChild(div);
+    scrollBottom();
+    return div;
+  }
+
+  function appendToStreamingMessage(div, chunk) {
+    div.dataset.raw += chunk;
+    div.innerHTML = marked.parse(div.dataset.raw);
+    scrollBottom();
+  }
+
+  function finaliseStreamingMessage(div, matchedEntries = []) {
+    div.classList.remove("cursor");
+    if (matchedEntries.length) {
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.innerHTML = "Sources: " + matchedEntries
+        .map(t => `<span class="tag">${t}</span>`).join("");
+      div.appendChild(meta);
+    }
   }
 
   function addTyping() {
     const div = document.createElement("div");
     div.className = "message bot typing";
-    div.id = "typing-indicator";
-    div.textContent = "Searching the wiki…";
+    div.id = "typing";
+    div.textContent = "Thinking…";
     chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
+    scrollBottom();
   }
 
   function removeTyping() {
-    const el = document.getElementById("typing-indicator");
-    if (el) el.remove();
+    document.getElementById("typing")?.remove();
   }
 
   function addSuggestions(chips) {
-    const div = document.createElement("div");
-    div.className = "message bot";
-    div.innerHTML = "<em>Try asking:</em><div class='suggestions'>" +
-      chips.map(c => `<span class="suggestion-chip" onclick="askSuggestion('${c.replace(/'/g, "\\'")}')">${c}</span>`).join("") +
-      "</div>";
-    chat.appendChild(div);
+    const wrap = document.createElement("div");
+    wrap.className = "message bot";
+    wrap.innerHTML = "<em>Try asking:</em>";
+    const row = document.createElement("div");
+    row.className = "suggestions";
+    chips.forEach(c => {
+      const btn = document.createElement("span");
+      btn.className = "chip";
+      btn.textContent = c;
+      btn.onclick = () => { input.value = c; sendMessage(); };
+      row.appendChild(btn);
+    });
+    wrap.appendChild(row);
+    chat.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function scrollBottom() {
     chat.scrollTop = chat.scrollHeight;
   }
 
-  function askSuggestion(text) {
-    input.value = text;
-    sendMessage();
-  }
+  // ── send message ─────────────────────────────────────────────────────────────
 
   async function sendMessage() {
     const query = input.value.trim();
-    if (!query) return;
+    if (!query || sendBtn.disabled) return;
 
     input.value = "";
     sendBtn.disabled = true;
-    addMessage(query, "user");
+    addUserMessage(query);
+
+    // Phase 1: show "Thinking…" while LLM routes the query
     addTyping();
 
+    let matchedEntries = [];
+
     try {
-      const res = await fetch(`${API}/chat`, {
+      // Use the streaming endpoint
+      const res = await fetch(`${API}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query }),
       });
-      const data = await res.json();
+
       removeTyping();
-      addMessage(data.answer, "bot", data.section);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const streamDiv = addStreamingBotMessage();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6);
+          if (payload === "[DONE]") break;
+          try {
+            const chunk = JSON.parse(payload);
+            appendToStreamingMessage(streamDiv, chunk);
+          } catch {}
+        }
+      }
+
+      finaliseStreamingMessage(streamDiv, matchedEntries);
+
     } catch (err) {
       removeTyping();
-      addMessage("⚠️ Could not reach the server. Make sure `python mcp_server/http_server.py` is running.", "bot");
+      addBotMessage(
+        "⚠️ Could not reach the server. Make sure `python mcp_server/http_server.py` is running and Ollama is active."
+      );
     }
 
     sendBtn.disabled = false;
     input.focus();
   }
 
+  // ── event listeners ──────────────────────────────────────────────────────────
+
   sendBtn.addEventListener("click", sendMessage);
   input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
-  // Welcome message + suggestions
-  addMessage(
-    "👋 Welcome to the **COBBLEVERSE Wiki Bot**!\n\nI can answer questions about **Installation**, and more sections coming soon. What would you like to know?",
-    "bot"
+  // ── welcome ──────────────────────────────────────────────────────────────────
+
+  addBotMessage(
+    "👋 Welcome to the **COBBLEVERSE Wiki Bot**!\n\n" +
+    "I'm powered by **llama3.2** and can understand natural language questions about COBBLEVERSE. " +
+    "Just ask me anything — no need to use specific keywords."
   );
   addSuggestions(SUGGESTIONS);
 </script>
