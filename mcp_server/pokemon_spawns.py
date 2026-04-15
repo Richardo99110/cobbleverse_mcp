@@ -234,10 +234,30 @@ def search_pokemon(query: str) -> list[dict]:
 def format_pokemon(p: dict) -> str:
     """Format a single Pokemon entry as readable text."""
     lines = [f"#{p['number']} {p['name']} ({p['generation']})"]
-    lines.append(f"  Base spawn biomes: {p['spawn_biomes']}")
+
+    spawn = p["spawn_biomes"]
+    condition = p.get("condition", "")
+
+    # Detect fossil Pokemon — spawn_biomes starts with "Fossil:" or "Evolution from"
+    if spawn.lower().startswith("fossil:"):
+        fossil_locations = spawn[len("Fossil:"):].strip()
+        lines.append(f"  FOSSIL POKEMON: {p['name']} is obtained from a fossil.")
+        lines.append(f"  Fossil dig sites: {fossil_locations}")
+        lines.append(f"  How to obtain: Find the fossil as Suspicious Sand/Gravel at the dig sites above, then use a Resurrection Machine to revive it.")
+        if condition:
+            # Condition may contain additional wild spawn info
+            lines.append(f"  Additional info: {condition}")
+    elif spawn.lower().startswith("evolution from"):
+        lines.append(f"  EVOLUTION: {spawn}")
+        if condition:
+            lines.append(f"  Additional info: {condition}")
+    else:
+        lines.append(f"  Base spawn biomes: {spawn}")
+        if condition:
+            lines.append(f"  Condition: {condition}")
+
     lines.append(f"  Rarity: {p['rarity']}")
-    if p["condition"]:
-        lines.append(f"  Condition: {p['condition']}")
+
     if p["forms"]:
         lines.append(f"  ALTERNATIVE FORMS & THEIR SPAWN LOCATIONS: {p['forms']}")
         lines.append(f"  NOTE: Each form spawns in DIFFERENT biomes than the base form listed above.")
