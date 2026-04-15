@@ -5,7 +5,7 @@ Run with: python mcp_server/server.py
 """
 
 from mcp.server.fastmcp import FastMCP
-from knowledge_base import INSTALLATION
+from knowledge_base import INSTALLATION, GAMEPLAY
 
 mcp = FastMCP("cobbleverse-wiki")
 
@@ -80,3 +80,54 @@ def get_installation_entry(topic_key: str) -> str:
 if __name__ == "__main__":
     mcp.run(transport="stdio")
 
+
+# ── GAMEPLAY TOOLS ────────────────────────────────────────────────────────────
+
+@mcp.tool()
+def search_gameplay(query: str) -> str:
+    """
+    Search the GAMEPLAY knowledge base for answers about COBBLEVERSE gameplay,
+    structures, economy, Pokémon spawns, and features.
+
+    Args:
+        query: The user's question or keywords, e.g. 'how to make money'
+    """
+    results = _search(GAMEPLAY, query)
+    if not results:
+        results = list(GAMEPLAY.values())
+
+    parts = []
+    for entry in results[:3]:
+        parts.append(f"## {entry['title']}\n{entry['content']}\nSource: {entry['url']}")
+    return "\n\n---\n\n".join(parts)
+
+
+@mcp.tool()
+def get_gameplay_topics() -> str:
+    """
+    List all available GAMEPLAY topics in the knowledge base.
+    """
+    lines = ["Available GAMEPLAY topics:\n"]
+    for key, entry in GAMEPLAY.items():
+        lines.append(f"- {entry['title']}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def get_gameplay_entry(topic_key: str) -> str:
+    """
+    Retrieve a specific GAMEPLAY entry by its key.
+
+    Args:
+        topic_key: One of: why_play, exclusive_structures, other_structures,
+                   making_money, pokemon_spawns
+    """
+    entry = GAMEPLAY.get(topic_key)
+    if not entry:
+        available = ", ".join(GAMEPLAY.keys())
+        return f"Topic '{topic_key}' not found. Available keys: {available}"
+    return f"## {entry['title']}\n\n{entry['content']}\n\nSource: {entry['url']}"
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")

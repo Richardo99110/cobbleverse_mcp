@@ -113,3 +113,135 @@ INSTALLATION = {
         "keywords": ["lumymon", "mod", "expansion", "altar", "shrine", "radar", "cartography", "remote pc", "riding", "download"]
     },
 }
+
+
+# ── GAMEPLAY ──────────────────────────────────────────────────────────────────
+
+GAMEPLAY = {
+    "why_play": {
+        "title": "Why Should I Play COBBLEVERSE",
+        "url": "https://www.lumyverse.com/cobbleverse/why-should-i-play-cobbleverse/",
+        "content": (
+            "Your journey in COBBLEVERSE begins by choosing a starter Pokémon. "
+            "COBBLEVERSE features exclusive starters from the Pallet Region and the Lumya Region, "
+            "not found in the base Cobblemon mod.\n\n"
+            "Starter Kit includes:\n"
+            "- Your personal Trainer Card\n"
+            "- A national Pokédex\n"
+            "- A map to the first Gym in the Kanto region\n"
+            "- 10 Poké Balls\n"
+            "- A large backpack with plenty of space\n"
+            "- 10 Oran Berries\n"
+            "- A custom guidebook\n\n"
+            "Key features:\n"
+            "- Hostile mobs and hunger are disabled by default — focus on Pokémon battles. "
+            "You can re-enable mobs and hunger if you prefer classic survival.\n"
+            "- All Mythical, Ultra Beasts, and Legendary Pokémon are available, many in secret locations.\n"
+            "- Shiny Rayquaza awaits in the End.\n"
+            "- Ride over 200 Pokémon species, including flying mounts.\n"
+            "- All 48 official Mega Evolutions are available. Press Y to Mega Evolve outside of battle "
+            "with the correct Mega Stone and Mega Bracelet. Pokémon stay Mega Evolved while exploring.\n"
+            "- Custom villages with Pokémon Centers and PokéMarkets.\n"
+            "- The ultimate goal: complete the Pokémon League by defeating all Gym Leaders across regions, "
+            "earning Badges, and becoming the Pokémon Master."
+        ),
+        "keywords": ["why play", "starter", "features", "overview", "start", "begin", "new",
+                     "mega evolution", "riding", "pokémon center", "league", "badges", "what is"]
+    },
+    "exclusive_structures": {
+        "title": "Exclusive Structures in COBBLEVERSE",
+        "url": "https://www.lumyverse.com/cobbleverse/exclusive-structures-in-cobbleverse/",
+        "content": (
+            "COBBLEVERSE features many exclusive custom structures not found in vanilla Minecraft or base Cobblemon. "
+            "These include Gyms for each region (Kanto, Johto, Hoenn, Sinnoh), Elite Four Towers, "
+            "Legendary Pokémon temples and shrines, Team Rocket Tower, Burned Tower, Bell Tower, "
+            "Sky Pillar, Spear Pillar, and many more.\n\n"
+            "Each structure is tied to the progression system — you unlock new structures by defeating "
+            "Gym Leaders and Champions of each region. Structures spawn in specific biomes and can be "
+            "located using Cartography Tables and Poké Radars from the LumyMon mod.\n\n"
+            "For detailed structure locations, use the /locate command with cheats enabled, "
+            "e.g. /locate structure cobbleverse:bell_tower"
+        ),
+        "keywords": ["structures", "exclusive", "buildings", "gyms", "temples", "towers",
+                     "custom", "locations", "biomes"]
+    },
+    "other_structures": {
+        "title": "Other Structures (Legendary Monuments & More)",
+        "url": "https://www.lumyverse.com/cobbleverse/other-structures/",
+        "content": (
+            "COBBLEVERSE includes many addon structures created by community collaborators:\n\n"
+            "Legendary Monuments (COBBLEVERSE Version):\n"
+            "- Lake Verity (Cherry Grove): Trial of Mesprit. Completing it gives the Mesprit Plume to spawn Mesprit and get a Red Chain component.\n"
+            "- Lake Acuity (Glacial Chasm): Home of Uxie. Pass its trial to get the Uxie Claw for spawning Uxie and a Red Chain piece.\n"
+            "- Lake Valor (Arid Highlands): Dwelling of Azelf. Overcome its trial to receive the Azelf Fang for spawning Azelf and the final Red Chain fragment.\n\n"
+            "Other notable structures:\n"
+            "- Outskirt Stand: An isolated merchant in the Desert Oasis that sells Zygarde Cells.\n"
+            "- Turnback Cave: A misty cave that connects to the Distortion World. Team Galactic leader Selina was the only human to reach it.\n"
+            "- Distortion World: A parallel dimension where time doesn't flow and space is unstable. "
+            "Domain of Giratina. Only the Red Chain can imprison Giratina. "
+            "To exit: find the natural return portal or craft an artificial portal using Raw Origin.\n"
+            "- Four Treasures of Ruin (Ting-Lu, Chien-Pao, Wo-Chien, Chi-Yu): Sealed legendary entities. "
+            "Remove 8 legendary stakes of a specific color around their sanctuary to awaken them.\n"
+            "- Stark Mountain: A volcano in the Nether Wastes guarding the Magma Stone. Removing it awakens Heatran.\n"
+            "- Eternatus Cocoon: A structure in The End. Requires 500 Galar Particles (overworld ore) to break the seal."
+        ),
+        "keywords": ["structures", "legendary monuments", "lake verity", "lake acuity", "lake valor",
+                     "distortion world", "giratina", "turnback cave", "stark mountain", "heatran",
+                     "eternatus", "zygarde", "outskirt stand", "ruin", "ting-lu", "chien-pao"]
+    },
+    "making_money": {
+        "title": "Making Money in COBBLEVERSE",
+        "url": "https://www.lumyverse.com/cobbleverse/making-money-in-cobbleverse/",
+        "content": (
+            "COBBLEVERSE features an economic system using two currencies:\n\n"
+            "1. PokéDollars: Earned by defeating wild Pokémon and trainers (including Gym Leaders). "
+            "Stronger trainers give more PokéDollars.\n"
+            "2. Relic Coins: Avoid spending these — you need 100 to get a Gholdengo!\n\n"
+            "Spending PokéDollars — CobbleMerchants:\n"
+            "- Basic CobbleMerchant: Place a display case next to an unemployed villager. "
+            "Wide range of items (Poké Balls, mob drops, healing supplies) but expensive.\n"
+            "- Poké Mart CobbleMerchant (blue-roof villages): Smaller selection, slightly lower prices.\n"
+            "- Shopping Center CobbleMerchant (larger villages): Huge variety (TMs, Rare Candies, etc.) "
+            "at the lowest prices. Explore all floors!\n\n"
+            "Earning PokéDollars:\n"
+            "- Defeat wild Pokémon and trainers.\n"
+            "- Sell items (emeralds, Relic Coins, Vitamins) to any CobbleMerchant via the 'Bank' option."
+        ),
+        "keywords": ["money", "pokédollars", "pokedollars", "economy", "currency", "earn",
+                     "cobblemerchant", "merchant", "shop", "buy", "sell", "relic coin",
+                     "gholdengo", "poké mart", "shopping"]
+    },
+    "pokemon_spawns": {
+        "title": "All Pokémon Spawns in COBBLEVERSE",
+        "url": "https://www.lumyverse.com/cobbleverse/all-pokemon-spawn-in-cobbleverse/",
+        "content": (
+            "COBBLEVERSE includes Pokémon from all 9 generations (Gen 1 Kanto through Gen 9 Paldea), "
+            "totaling over 1025 Pokémon with custom spawn conditions.\n\n"
+            "Key spawn info:\n"
+            "- Biomes mentioned refer to vanilla Minecraft biomes. Use the PokéNav to find where Pokémon spawn.\n"
+            "- The /checkspawn command may not work properly — use PokéNav instead.\n"
+            "- For Pokémon added by Cobblemon, see https://wiki.cobblemon.com/ for more info.\n\n"
+            "Legendary & Mythical spawn conditions:\n"
+            "- Many require completing specific Trainer battle series first.\n"
+            "- Example: Ho-Oh, Lugia, and the three Legendary Beasts only appear after defeating Kanto Champion Blue.\n"
+            "- Legendaries are typically Ultra-Rare and tied to specific structures.\n\n"
+            "Rarity tiers: Common, Uncommon, Rare, Ultra-Rare.\n\n"
+            "Special conditions include: time of day (Day/Night/Dusk), weather (Clear/Rain/Storm/Thunderstorm), "
+            "Y-level ranges, moon phases, nearby blocks, biome-specific spawns, and fishing.\n\n"
+            "Regional forms (Alolan, Galarian, Hisuian, Paldean) spawn in different biomes than their base forms.\n\n"
+            "Examples:\n"
+            "- Bulbasaur: All Jungle biomes (Ultra-Rare)\n"
+            "- Pikachu: All Forest biomes except Dark Forest (Uncommon, during a storm)\n"
+            "- Eevee: Plains, Forest, Birch Forest, Cherry Grove (Uncommon, Day)\n"
+            "- Mewtwo: Savannah (Ultra-Rare, Structure: Team Rocket Tower)\n"
+            "- Rayquaza: Deep Ocean (Ultra-Rare, Structure: Sky Pillar)\n"
+            "- Arceus: Origin Dimension (Ultra-Rare, Structure: Sinnoh Temple)\n\n"
+            "For the full spawn table with all 1025+ Pokémon, visit the source URL."
+        ),
+        "keywords": ["spawn", "pokémon", "pokemon", "find", "catch", "where", "biome",
+                     "location", "rare", "ultra-rare", "legendary", "mythical", "shiny",
+                     "generation", "gen", "kanto", "johto", "hoenn", "sinnoh", "unova",
+                     "kalos", "alola", "galar", "paldea", "fishing", "night", "day",
+                     "weather", "storm", "alolan", "galarian", "hisuian"]
+    },
+}

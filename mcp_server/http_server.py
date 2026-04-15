@@ -35,7 +35,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 
-from knowledge_base import INSTALLATION
+from knowledge_base import INSTALLATION, GAMEPLAY
 
 # ── config ────────────────────────────────────────────────────────────────────
 
@@ -43,6 +43,7 @@ LLM_MODEL = "llama3.2"
 
 SECTION_MAP = {
     "installation": INSTALLATION,
+    "gameplay": GAMEPLAY,
 }
 
 # All KB entries flattened for the LLM to reason over
