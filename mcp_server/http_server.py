@@ -35,7 +35,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 import uvicorn
 
-from knowledge_base import INSTALLATION, GAMEPLAY
+from knowledge_base import INSTALLATION, GAMEPLAY, TUTORIALS
 from pokemon_spawns import POKEMON_SPAWNS, search_pokemon, format_pokemon, SOURCE_URL
 
 # ── config ────────────────────────────────────────────────────────────────────
@@ -45,6 +45,7 @@ LLM_MODEL = "llama3.2"
 SECTION_MAP = {
     "installation": INSTALLATION,
     "gameplay": GAMEPLAY,
+    "tutorials": TUTORIALS,
 }
 
 # All KB entries flattened for the LLM to reason over

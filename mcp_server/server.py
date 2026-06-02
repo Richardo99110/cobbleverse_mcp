@@ -5,7 +5,7 @@ Run with: python mcp_server/server.py
 """
 
 from mcp.server.fastmcp import FastMCP
-from knowledge_base import INSTALLATION, GAMEPLAY
+from knowledge_base import INSTALLATION, GAMEPLAY, TUTORIALS
 from pokemon_spawns import POKEMON_SPAWNS, search_pokemon, format_pokemon
 
 mcp = FastMCP("cobbleverse-wiki")
@@ -126,6 +126,54 @@ def get_gameplay_entry(topic_key: str) -> str:
     entry = GAMEPLAY.get(topic_key)
     if not entry:
         available = ", ".join(GAMEPLAY.keys())
+        return f"Topic '{topic_key}' not found. Available keys: {available}"
+    return f"## {entry['title']}\n\n{entry['content']}\n\nSource: {entry['url']}"
+
+
+# ── TUTORIALS TOOLS ───────────────────────────────────────────────────────────
+
+@mcp.tool()
+def search_tutorials(query: str) -> str:
+    """
+    Search the TUTORIALS knowledge base for step-by-step guides about
+    enabling regions, finding gyms and legendary structures, special
+    Pokémon forms, special items, LumyMon config, and more.
+
+    Args:
+        query: The user's question or keywords, e.g. 'enable all regions'
+    """
+    results = _search(TUTORIALS, query)
+    if not results:
+        results = list(TUTORIALS.values())
+
+    parts = []
+    for entry in results[:3]:
+        parts.append(f"## {entry['title']}\n{entry['content']}\nSource: {entry['url']}")
+    return "\n\n---\n\n".join(parts)
+
+
+@mcp.tool()
+def get_tutorials_topics() -> str:
+    """
+    List all available TUTORIALS topics in the knowledge base.
+    """
+    lines = ["Available TUTORIALS topics:\n"]
+    for key, entry in TUTORIALS.items():
+        lines.append(f"- {entry['title']}")
+    return "\n".join(lines)
+
+
+@mcp.tool()
+def get_tutorials_entry(topic_key: str) -> str:
+    """
+    Retrieve a specific TUTORIALS entry by its key.
+
+    Args:
+        topic_key: One of the TUTORIALS keys (e.g. 'enable_all_regions')
+    """
+    entry = TUTORIALS.get(topic_key)
+    if not entry:
+        available = ", ".join(TUTORIALS.keys())
         return f"Topic '{topic_key}' not found. Available keys: {available}"
     return f"## {entry['title']}\n\n{entry['content']}\n\nSource: {entry['url']}"
 

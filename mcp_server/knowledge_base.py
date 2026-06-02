@@ -245,3 +245,44 @@ GAMEPLAY = {
                      "weather", "storm", "alolan", "galarian", "hisuian"]
     },
 }
+
+
+# ── TUTORIALS ─────────────────────────────────────────────────────────────────
+
+TUTORIALS = {
+    "enable_all_regions": {
+        "title": "How to Enable All Regions and Structures",
+        "url": "https://www.lumyverse.com/cobbleverse/how-to-enable-all-regions-and-structures/",
+        "content": (
+            "In COBBLEVERSE, legendary structures are tightly linked to the trainers you must defeat. "
+            "By default you cannot access all legendary structures until you have beaten the Champion of "
+            "each region. For example, Ho-Oh, Celebi, and Lugia will NOT appear until you defeat the "
+            "Kanto Champion, Blue. There is, however, a simple way to bypass this gating and unlock all "
+            "structures immediately.\n\n"
+            "Before you begin, make sure:\n"
+            "- Commands are enabled (singleplayer or server).\n"
+            "- If you're on a server, the server's `config` folder must match the one in your launcher.\n"
+            "- For servers: datapacks must be loaded correctly on the server, otherwise nothing will work.\n\n"
+            "How to activate all structures:\n"
+            "Run the following command, once per region:\n"
+            "  /function setup:<region>\n\n"
+            "Where <region> is one of: kanto, johto, hoenn, sinnoh.\n"
+            "Examples:\n"
+            "  /function setup:johto\n"
+            "  /function setup:hoenn\n"
+            "  /function setup:sinnoh\n\n"
+            "Steps:\n"
+            "1. Run the command for a region and wait a few seconds.\n"
+            "2. Repeat for each region in order: Johto → Hoenn → Sinnoh.\n"
+            "   (Kanto is enabled by default at the start of a new game.)\n"
+            "3. You can enable a single region or all of them — it's up to you.\n"
+            "4. Once you've activated the regions you want, close and reopen your world or server once.\n\n"
+            "After the restart, all structures for the enabled regions will be available."
+        ),
+        "keywords": [
+            "enable", "regions", "structures", "unlock", "bypass", "datapack",
+            "function setup", "/function", "setup", "johto", "hoenn", "sinnoh",
+            "kanto", "all regions", "skip champion", "champion gate", "progression"
+        ]
+    },
+}
